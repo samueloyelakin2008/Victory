@@ -227,12 +227,119 @@ body {
     animation: flicker 1s infinite;
     box-shadow: 0 0 10px #ff9933, 0 0 20px #ff9933, 0 0 30px #ff9933;
 }
-
+/* Slideshow & Lightbox Styles */
+        .slideshow-gallery-container {
+            margin: 40px auto 0 auto;
+            max-width: 900px;
+            width: 100%;
+        }
+        .slideshow {
+            position: relative;
+            width: 100%;
+            height:100%;
+            border-radius: 20px;
+            overflow: hidden;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.15);
+            margin-bottom: 30px;
+        }
+        .slideshow img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            display: none;
+            transition: opacity 0.5s;
+        }
+        .slideshow img.active {
+            display: block;
+            opacity: 1;
+        }
+        .gallery {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+            justify-content: center;
+        }
+        .gallery img {
+            width: 120px;
+            height: 90px;
+            object-fit: cover;
+            border-radius: 10px;
+            cursor: pointer;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+            transition: transform 0.2s;
+        }
+        .gallery img:hover {
+            transform: scale(1.07);
+        }
+        .lightbox {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0; top: 0; width: 100vw; height: 100vh;
+            background: rgba(0,0,0,0.85);
+            justify-content: center;
+            align-items: center;
+        }
+        .lightbox img {
+            max-width: 90vw;
+            max-height: 90vh;
+            border-radius: 15px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.4);
+        }
+        .lightbox .close {
+            position: absolute;
+            top: 30px; right: 40px;
+            font-size: 2.5em;
+            color: #fff;
+            background: transparent;
+            border: none;
+            cursor: pointer;
+            z-index: 1001;
+        }
+        @media (max-width: 768px) {
+            .container {
+                padding: 10px;
+            }
+            .birthday-card {
+                padding: 20px;
+            }
+            .title {
+                font-size: 2.5em;
+            }
+            .name {
+                font-size: 1.8em;
+            }
+            .nickname {
+                font-size: 1.2em;
+            }
+            .buttons {
+                flex-direction: column;
+                gap: 10px;
+            }
+            .photo-frame {
+                height: 250px;
+            }
+            .photo-caption {
+                font-size: 1.2em;
+                padding: 10px;
+            }
+            .age-badge {
+                width: 90px;
+                height: 90px;
+                top: -20px;
+                right: -20px;
+            }
+            .age-badge .number {
+                font-size: 2em;
+            }
+            .slideshow { height: 220px; }
+            .gallery img { width: 80px; height: 60px; }
+        }
 /* Photo Gallery */
 .photo-gallery {
     margin-top: 40px;
     perspective: 1000px;
-    width: 100%;
+    width:100%;
 }
 
 .photo-frame {
@@ -484,7 +591,7 @@ body {
             <div class="confetti"></div>
             <h1 class="title">Happy Birthday</h1>
             <h2 class="name">Adigun Victory Oluwakanyinsola</h2>
-            <div class="nickname">~ My Sweet Oluwakanyinsola ~</div>
+            <div class="nickname">~ My Sweet Kanyinsola ~</div>
             <div class="age-badge">
                 <span class="number">1</span>
                 <span class="year">Year</span>
@@ -510,12 +617,30 @@ body {
                 <button id="makeWish" class="wish-button">Make a Wish, Oluwakanyinsola! 🌟</button>
                 <button style="display:none;" id="playMusic" class="music-button">Play Birthday Song 🎵</button>
             </div>
-            <div class="photo-gallery">
-                <div class="photo-frame">
-                    <img src="Snapchat-359340117.jpg" alt="Birthday Celebration">
-                    <div class="photo-caption"> Sweet Princess Oluwakanyinsola</div>
+            <div class="slideshow-gallery-container">
+                <div class="slideshow" id="slideshow">
+                    <img src="img3.jpg" alt="1" class="active">
+                    <img src="img1.jpg" alt="2">
+                    <img src="img4.jpg" alt="3">
+                    <img src="img2.jpg" alt="4">
+                    <img src="Snapchat-359340117.jpg" alt="5">
+                </div>
+                <div class="gallery" id="gallery">
+                    <img src="img3.jpg" data-full="img3.jpg" alt="1">
+                    <img src="img1.jpg" data-full="img1.jpg" alt="2">
+                    <img src="img4.jpg" data-full="img4.jpg" alt="3">
+                    <img src="img2.jpg" data-full="img2.jpg" alt="4">
+                    <img src="Snapchat-359340117.jpg" data-full="Snapchat-359340117.jpg" alt="5">
                 </div>
             </div>
+            <!-- SLIDESHOW & GALLERY END -->
+        </div>
+    </div>
+    <!-- Lightbox for Full View -->
+    <div class="lightbox" id="lightbox">
+        <button class="close" id="closeLightbox">&times;</button>
+        <img src="" alt="Full View" id="lightboxImg">
+    </div>
         </div>
     </div>
     <script>
@@ -655,6 +780,41 @@ body {
         celebrate();
     }, 1000);
 });
+        // SLIDESHOW & LIGHTBOX SCRIPT
+        const slides = document.querySelectorAll('#slideshow img');
+        let currentSlide = 0;
+        function showSlide(index) {
+            slides.forEach((img, i) => img.classList.toggle('active', i === index));
+        }
+        function nextSlide() {
+            currentSlide = (currentSlide + 1) % slides.length;
+            showSlide(currentSlide);
+        }
+        setInterval(nextSlide, 5000); // 5 seconds interval
+
+        // Lightbox logic
+        const gallery = document.getElementById('gallery');
+        const lightbox = document.getElementById('lightbox');
+        const lightboxImg = document.getElementById('lightboxImg');
+        const closeLightbox = document.getElementById('closeLightbox');
+        gallery.addEventListener('click', function(e) {
+            if (e.target.tagName === 'IMG') {
+                lightboxImg.src = e.target.getAttribute('data-full');
+                lightbox.style.display = 'flex';
+            }
+        });
+        closeLightbox.addEventListener('click', function() {
+            lightbox.style.display = 'none';
+            lightboxImg.src = '';
+        });
+        lightbox.addEventListener('click', function(e) {
+            if (e.target === lightbox) {
+                lightbox.style.display = 'none';
+                lightboxImg.src = '';
+            }
+        });
+
+
     </script>
 </body>
 </html>
